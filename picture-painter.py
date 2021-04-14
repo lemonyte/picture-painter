@@ -208,7 +208,7 @@ def Paint(pixelDictionary, speed, startX, startY):
             pyautogui.mouseUp()
             paintedPixels += 1
             paintedColorPixels += 1
-            if paintedPixels % 2 == 0 or paintedColorPixels < 200:
+            if paintedPixels % 1 == 0 or paintedColorPixels < 200:
                 ProgressUpdate(paintedPixels, totalPixels, 'pixel')
                 ProgressUpdate(paintedColorPixels, colorPixels, 'color_pixel', 'pixels in current color')
 
