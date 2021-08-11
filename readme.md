@@ -13,8 +13,8 @@ Draw images in MS Paint.
 ### Executable
 Executable file with Python and all required packages included.
 - Windows Operating System
-- 60 MB of free space for the executable
-- 70 MB of free space for temporary files
+- 12 MB of free space for the executable
+- 14 MB of free space for temporary files
 ## Usage
 Start the program and choose an image file using the "Browse" button. Supported file types are `.jpg`, `.jpeg`, `.jfif`, `.png`, and `.bmp`.
 ### IMPORTANT

@@ -1,5 +1,0 @@
-.vscode/
-__pycache__/
-[Bb]uild/
-.gitignore
-*.spec

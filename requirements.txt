@@ -1,0 +1,4 @@
+pyautogui
+PySimpleGUI
+pillow
+keyboard

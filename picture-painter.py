@@ -8,9 +8,9 @@ import time
 import pyautogui
 import PySimpleGUI as sg
 from subprocess import Popen
+from math import sqrt
 from PIL import Image
 from keyboard import is_pressed
-from math import sqrt
 
 sg.theme('Black')
 
@@ -347,61 +347,54 @@ RETRO_8 = [
 ]
 
 
-def ProcessImage(imagePath: str, compression: str, backgroundColor: tuple, maxSize: tuple[int]) -> dict:
-    image = RemoveAlpha(Image.open(imagePath), backgroundColor)
+def process_image(image_path: str, compression: str, background_color: tuple[int, int, int], max_size: tuple[int, int]) -> dict:
+    image = remove_alpha(Image.open(image_path), background_color)
     width, height = image.size
-    if width > maxSize[0] or height > maxSize[1]:
-        image.thumbnail(maxSize)
-
-    pixelDictionary = {}
+    if width > max_size[0] or height > max_size[1]:
+        image.thumbnail(max_size)
+    pixel_dictionary = {}
     for y in range(image.height):
         for x in range(image.width):
             rgb = image.getpixel((x, y))
-            rgb = CompressValue(rgb, compression)
-            rgb = NormalizeValues(rgb)
-            if rgb == backgroundColor:
+            rgb = compress_value(rgb, compression)
+            rgb = normalize_values(rgb)
+            if rgb == background_color:
                 continue
-
-            rgbList = [str(value) for value in rgb]
-            rgbKey = ':'.join(rgbList)
-            if pixelDictionary.get(rgbKey) is None:
-                pixelDictionary[rgbKey] = []
-
-            pixelDictionary[rgbKey].append((x, y))
-
-    return pixelDictionary
+            rgb_list = [str(value) for value in rgb]
+            rgb_key = ':'.join(rgb_list)
+            if pixel_dictionary.get(rgb_key) is None:
+                pixel_dictionary[rgb_key] = []
+            pixel_dictionary[rgb_key].append((x, y))
+    return pixel_dictionary
 
 
-def RemoveAlpha(image: Image.Image, backgroundColor: tuple) -> Image.Image:
+def remove_alpha(image: Image.Image, background_color: tuple[int, int, int]) -> Image.Image:
     image = image.convert('RGBA')
-    background = Image.new('RGBA', image.size, backgroundColor)
+    background = Image.new('RGBA', image.size, background_color)
     return Image.alpha_composite(background, image).convert('RGB')
 
 
-def NormalizeValues(values: list) -> list:
+def normalize_values(values: tuple[int, int, int]) -> tuple[int, int, int]:
     for index in range(len(values)):
         if values[index] > 255:
             values[index] = 255
-
         elif values[index] < 0:
             values[index] = 0
-
     return values
 
 
-def ClosestColor(rgb: tuple, colors: list) -> tuple:
+def closest_color(rgb: tuple[int, int, int], colors: list) -> tuple[int, int, int]:
     r, g, b = rgb
-    colorDiffs = []
+    color_diffs = []
     for color in colors:
         cr, cg, cb = color
-        colorDiff = sqrt(abs(r - cr)**2 + abs(g - cg)**2 + abs(b - cb)**2)
-        colorDiffs.append((colorDiff, color))
+        color_diff = sqrt(abs(r - cr)**2 + abs(g - cg)**2 + abs(b - cb)**2)
+        color_diffs.append((color_diff, color))
+    return min(color_diffs)[1]
 
-    return min(colorDiffs)[1]
 
-
-def CompressValue(rgb: tuple, compression: str) -> tuple:
-    compressionValues = {
+def compress_value(rgb: tuple[int, int, int], compression: str) -> tuple[int, int, int]:
+    compression_values = {
         'none': 1,
         'low': 2,
         'medium': 10,
@@ -410,147 +403,130 @@ def CompressValue(rgb: tuple, compression: str) -> tuple:
         'retro 4': 0,
         'retro 8': 0
     }
-    compressionNumber = compressionValues.get(compression, 2)
+    compression_number = compression_values.get(compression, 2)
     if compression == 'retro 4':
-        rgb = ClosestColor(rgb, RETRO_4)
-
+        rgb = closest_color(rgb, RETRO_4)
     elif compression == 'retro 8':
-        rgb = ClosestColor(rgb, RETRO_8)
-
+        rgb = closest_color(rgb, RETRO_8)
     elif compression != 'none':
-        rgb = tuple((value // compressionNumber * compressionNumber) for value in rgb)
-
+        rgb = tuple((value // compression_number * compression_number) for value in rgb)
     return rgb
 
 
-def ColorComponent(colorValue: int, component: str):
-    pyautogui.hotkey('altleft', component)
-    pyautogui.typewrite(str(colorValue))
-
-
-def SetColor(colorValues):
-    for value in colorValues:
+def set_color(rgb: tuple[int, int, int]):
+    def color_component(value: int, component: str):
+        pyautogui.hotkey('altleft', component)
+        pyautogui.typewrite(str(value))
+    for value in rgb:
         assert 0 <= value <= 255, f"RGB values out of range: {value}"
-
     pyautogui.typewrite(['altleft', 'h', 'e', 'c', ], interval=0.1)
-    ColorComponent(colorValues[0], 'r')
-    ColorComponent(colorValues[1], 'g')
-    ColorComponent(colorValues[2], 'u')
+    color_component(rgb[0], 'r')
+    color_component(rgb[1], 'g')
+    color_component(rgb[2], 'u')
     pyautogui.press('enter')
 
 
-def Paint(imagePath: str, compression: str, speed: float, brush: str, backgroundColor: str, startX: int, startY: int, endX: int, endY: int, pause: bool, pausePixels: int, pauseTime: float, progressPixels: int):
-    global startTime
+def paint(image_path: str, compression: str, speed: float, brush: str, background_color: str, start_x: int, start_y: int, end_x: int, end_y: int, pause: bool, pause_pixels: int, pause_time: float, progress_pixels: int):
+    global start_time
     window['color_progress_text'].update("Processing image...", text_color='white')
     window.refresh()
-    backgroundColor = tuple(int(value) for value in backgroundColor.split(','))
-    pixelDictionary = ProcessImage(imagePath, compression, backgroundColor, (endX, endY))
+    background_color = tuple(int(value) for value in background_color.split(','))
+    pixel_dictionary = process_image(image_path, compression, background_color, (end_x, end_y))
     Popen(['mspaint.exe'])
     time.sleep(2)
     pyautogui.keyDown('alt')
     pyautogui.press(' ')
     pyautogui.press('x')
     pyautogui.keyUp('alt')
-    pyautogui.moveTo(startX, startY)
+    pyautogui.moveTo(start_x, start_y)
     time.sleep(2)
-    startTime = time.time()
-    SetColor(backgroundColor)
+    start_time = time.time()
+    set_color(background_color)
     pyautogui.typewrite(['alt', 'h', 'k'])
-    pyautogui.click(startX, startY)
+    pyautogui.click(start_x, start_y)
     if brush == 'brush':
         pyautogui.typewrite(['altleft', 'h', 'b', 'enter'], interval=0.1)
-
     else:
         pyautogui.typewrite(['altleft', 'h', 'p', '1'], interval=0.1)
-
     cancelled = False
-    paintedColors = 0
-    paintedPixels = 0
-    totalColors = len(pixelDictionary)
-    totalPixels = sum(len(value) for value in pixelDictionary.values())
-    for rgb in sorted(pixelDictionary.keys(), key=lambda z: len(pixelDictionary[z]), reverse=True):
+    painted_colors = 0
+    painted_pixels = 0
+    total_colors = len(pixel_dictionary)
+    total_pixels = sum(len(value) for value in pixel_dictionary.values())
+    for rgb in sorted(pixel_dictionary.keys(), key=lambda key: len(pixel_dictionary[key]), reverse=True):
         if cancelled:
             break
-
-        colorList = [int(value) for value in rgb.split(':')]
-        colorPixels = len(pixelDictionary.get(rgb))
-        paintedColorPixels = 0
-        ProgressUpdate(paintedColors, totalColors, 'color', 'colors')
-        ProgressUpdate(paintedPixels, totalPixels, 'pixel', 'pixels')
-        ProgressUpdate(paintedColorPixels, colorPixels, 'color_pixel', 'pixels in current color')
+        color_list = [int(value) for value in rgb.split(':')]
+        color_pixels = len(pixel_dictionary.get(rgb))
+        painted_color_pixels = 0
+        progress_update(painted_colors, total_colors, 'color', 'colors')
+        progress_update(painted_pixels, total_pixels, 'pixel', 'pixels')
+        progress_update(painted_color_pixels, color_pixels, 'color_pixel', 'pixels in current color')
         pyautogui.PAUSE = speed + 0.1
         time.sleep(0.1)
-        SetColor(colorList)
+        set_color(color_list)
         pyautogui.PAUSE = speed
-        for pixelX, pixelY in pixelDictionary.get(rgb):
-            if pause and paintedPixels % pausePixels == 0:
-                time.sleep(float(pauseTime) - float(1))
+        for pixel_x, pixel_y in pixel_dictionary.get(rgb):
+            if pause and painted_pixels % pause_pixels == 0:
+                time.sleep(float(pause_time) - float(1))
                 pyautogui.typewrite(['alt', 'h', 'e', 'c', 'esc'])
                 time.sleep(1)
-
-            pyautogui.click(startX + pixelX, startY + pixelY)
+            pyautogui.click(start_x + pixel_x, start_y + pixel_y)
             pyautogui.mouseUp()
-            paintedPixels += 1
-            paintedColorPixels += 1
-            if paintedPixels % progressPixels == 0:
-                ProgressUpdate(paintedPixels, totalPixels, 'pixel', 'pixels')
-                ProgressUpdate(paintedColorPixels, colorPixels, 'color_pixel', 'pixels in current color')
-                UpdatePosition('position_text')
-                elapsedTime = round(time.time() - startTime)
-                percent = ((paintedPixels / totalPixels) * 100) + 1
-                percentLeft = 100 - percent
-                timeLeft = round(((elapsedTime / percent) * percentLeft) + (float((totalColors - paintedColors)) * 1.4))
-                window['elapsed_time_text'].update(f"Elapsed time: {elapsedTime // (60 * 60)}h {(elapsedTime % (60 * 60)) // 60}m {elapsedTime % 60}s", text_color='white')
-                window['time_remaining_text'].update(f"Estimated time remaining: {timeLeft // (60 * 60)}h {(timeLeft % (60 * 60)) // 60}m {timeLeft % 60}s", text_color='white')
-
+            painted_pixels += 1
+            painted_color_pixels += 1
+            if painted_pixels % progress_pixels == 0:
+                progress_update(painted_pixels, total_pixels, 'pixel', 'pixels')
+                progress_update(painted_color_pixels, color_pixels, 'color_pixel', 'pixels in current color')
+                update_position('position_text')
+                elapsed_time = round(time.time() - start_time)
+                percent = ((painted_pixels / total_pixels) * 100) + 1
+                percent_remaining = 100 - percent
+                time_remaining = round(((elapsed_time / percent) * percent_remaining) + (float((total_colors - painted_colors)) * 1.4))
+                window['elapsed_time_text'].update(f"Elapsed time: {elapsed_time // (60 * 60)}h {(elapsed_time % (60 * 60)) // 60}m {elapsed_time % 60}s", text_color='white')
+                window['time_remaining_text'].update(f"Estimated time remaining: {time_remaining // (60 * 60)}h {(time_remaining % (60 * 60)) // 60}m {time_remaining % 60}s", text_color='white')
             if is_pressed('space') or is_pressed('esc'):
                 cancelled = True
                 raise pyautogui.FailSafeException
-
-        paintedColors += 1
-
-    ProgressUpdate(totalColors, totalColors, 'color', 'pixels')
+        painted_colors += 1
+    progress_update(total_colors, total_colors, 'color', 'pixels')
 
 
-def ProgressUpdate(current: int, total: int, bar: str, text: str):
+def progress_update(current: int, total: int, bar: str, text: str):
     percent = round(current / total * 100)
     window[f'{bar}_progress_text'].update(f"{current} out of {total} {text} painted. {percent}%", text_color='white')
     window[f'{bar}_progress_bar'].update(current, total)
     window.refresh()
 
 
-def UpdatePosition(key: str):
-    currentPosition = pyautogui.position()
-    window[key].update(f"Current mouse position: ({currentPosition.x}, {currentPosition.y})")
+def update_position(key: str):
+    current_position = pyautogui.position()
+    window[key].update(f"Current mouse position: ({current_position.x}, {current_position.y})")
 
 
 pyautogui.PAUSE = 0
-originalSpeed = pyautogui.PAUSE
-startTime = time.time()
+original_speed = pyautogui.PAUSE
+start_time = time.time()
 window = sg.Window("Picture Painter", layout)
 while True:
     event, values = window.read(50)
-    UpdatePosition('position_text')
+    update_position('position_text')
     if event == sg.WIN_CLOSED:
         break
-
     elif event in ['start_x', 'start_y', 'end_x', 'end_y', 'pause_pixels', 'progress_pixels'] and values[event] != '' and values[event][-1] not in '0123456789':
         window[event].update(values[event][:-1])
-
     elif event == 'pause_time' and values[event] != '' and values[event][-1] not in '0123456789.':
         window[event].update(values[event][:-1])
-
     elif event == 'draw_button':
         try:
             if values['image_path'] == '':
                 window['image_path_text'].update("Choose an image", text_color='red')
                 continue
-
             window['image_path_text'].update('', text_color='white')
-            Paint(
+            paint(
                 values['image_path'],
                 values['compression_combo'].lower(),
-                originalSpeed,
+                original_speed,
                 values['brush_combo'].lower(),
                 values['bg_color_input'],
                 int(values['start_x']),
@@ -564,22 +540,17 @@ while True:
             )
             window['time_remaining_text'].update("Estimated time remaining: 0h 0m 0s", text_color='white')
             pyautogui.alert(text="Picture painting completed", title="Finished")
-
         except pyautogui.FailSafeException:
             pyautogui.mouseUp()
             window['color_progress_text'].update("Failsafe tripped. Operation stopped.", text_color='red')
             pyautogui.alert(text="Failsafe tripped.\nOperation stopped.", title="Emergency Stop")
-
         except Exception as exception:
             window['color_progress_text'].update(f"Error: {exception}", text_color='red')
-
     elif event == 'pause_checkbox':
         if values['pause_checkbox']:
             window['pause_pixels'].update(disabled=False)
             window['pause_time'].update(disabled=False)
-
         else:
             window['pause_pixels'].update(disabled=True)
             window['pause_time'].update(disabled=True)
-
 window.close()
