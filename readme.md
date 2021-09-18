@@ -16,6 +16,7 @@ Executable file with Python and all required packages included.
 - 12 MB of free space for the executable
 - 14 MB of free space for temporary files
 ## Usage
+Download the executable or source code from the [latest release](https://github.com/LemonPi314/picture-painter/releases/latest).
 Start the program and choose an image file using the "Browse" button. Supported file types are `.jpg`, `.jpeg`, `.jfif`, `.png`, and `.bmp`.
 ### IMPORTANT
 This program will take full control of the mouse input. If something should go wrong, unintended consequences can happen if the program clicks outside the bounds of the Paint canvas. Use at your own risk. Before using, launch MS Paint and make it full screen. Then adjust the canvas size to fill most of the screen. This program has not been tested on high resolution displays above `1920x1080`. If you have multiple monitors, make sure Paint launches in your primary left-most display.

@@ -1,9 +1,3 @@
-"""
-Original idea and code created by Reddit user "saulmessedupman" (https://www.reddit.com/user/saulmessedupman/)
-Reddit post: https://www.reddit.com/r/learnpython/comments/9weko5/what_useless_projects_are_you_working_on/
-Original code pastebin: https://pastebin.com/zSrYLWtf
-"""
-
 import time
 import pyautogui
 import PySimpleGUI as sg
