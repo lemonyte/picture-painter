@@ -55,8 +55,8 @@ After you are satisfied with the settings and have read the [IMPORTANT](#importa
 ## Disclaimer
 I am not liable for any data loss, damage, or any other consequences resulting from use of this software. Use at your own risk.
 ## Credits
-Original idea and code created by Reddit user "saulmessedupman" (https://www.reddit.com/user/saulmessedupman/)
-Reddit post: https://www.reddit.com/r/learnpython/comments/9weko5/what_useless_projects_are_you_working_on/
+Original idea and code created by Reddit user "saulmessedupman" (https://www.reddit.com/user/saulmessedupman/)  
+Reddit post: https://www.reddit.com/r/learnpython/comments/9weko5/what_useless_projects_are_you_working_on/  
 Original code Pastebin: https://pastebin.com/zSrYLWtf
 ## License
 [MIT License](https://choosealicense.com/licenses/mit/)

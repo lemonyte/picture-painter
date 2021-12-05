@@ -6,61 +6,6 @@ from math import sqrt
 from PIL import Image
 from keyboard import is_pressed
 
-sg.theme('Black')
-
-layout = [
-    [sg.Text("Image file")],
-    [
-        sg.Input(key='image_path', size=(60, 1)),
-        sg.FileBrowse(file_types=(("Image Files", "*.jpg"), ("Image Files", "*.jpeg"), ("Image Files", "*.png"), ("Image Files", "*.bmp"), ("Image Files", "*.jfif")))
-    ],
-    [sg.Text('', size=(40, 1), key='image_path_text')],
-    [
-        sg.Column([
-            [sg.Text("Compression")],
-            [sg.Combo(["None", "Low", "Medium", "High", "Extreme", "Retro 4", "Retro 8"], default_value="Medium", key='compression_combo', readonly=True)]
-        ]),
-        sg.Column([
-            [sg.Text("Brush type")],
-            [sg.Combo(["Pixel", "Brush"], default_value="Pixel", key='brush_combo', readonly=True)]
-        ]),
-        sg.Column([
-            [sg.Text("Background color")],
-            [sg.Input('255, 255, 255', key='bg_color_input', size=(12, 1))]
-        ])
-    ],
-    [sg.Text("Current mouse position: ", key='position_text', size=(40, 1))],
-    [
-        sg.Text("Starting position:\tX"),
-        sg.Input('30', key='start_x', size=(10, 1), enable_events=True),
-        sg.Text("Y"),
-        sg.Input('200', key='start_y', size=(10, 1), enable_events=True)
-    ],
-    [
-        sg.Text("Boundary limit:\tX"),
-        sg.Input('1800', key='end_x', size=(10, 1), enable_events=True),
-        sg.Text("Y"),
-        sg.Input('900', key='end_y', size=(10, 1), enable_events=True)
-    ],
-    [
-        sg.Checkbox("Pause every", key='pause_checkbox', enable_events=True),
-        sg.Input('2000', key='pause_pixels', size=(10, 1), enable_events=True, disabled=True, disabled_readonly_background_color='black'),
-        sg.Text("pixels for"),
-        sg.Input('3', key='pause_time', size=(5, 1), enable_events=True, disabled=True, disabled_readonly_background_color='black'),
-        sg.Text("seconds")
-    ],
-    [sg.Text("Progress update every"), sg.Input('1', key='progress_pixels', size=(10, 1), enable_events=True), sg.Text("pixels")],
-    [sg.Button("Draw", key='draw_button')],
-    [sg.Text('', size=(60, 1), key='elapsed_time_text')],
-    [sg.Text('', size=(60, 1), key='time_remaining_text')],
-    [sg.Text('', size=(60, 1), key='color_progress_text')],
-    [sg.ProgressBar(max_value=500, size=(45, 20), key='color_progress_bar')],
-    [sg.Text('', size=(60, 1), key='pixel_progress_text')],
-    [sg.ProgressBar(max_value=500, size=(45, 20), key='pixel_progress_bar')],
-    [sg.Text('', size=(60, 1), key='color_pixel_progress_text')],
-    [sg.ProgressBar(max_value=500, size=(45, 20), key='color_pixel_progress_bar')]
-]
-
 RETRO_4 = [
     (0, 0, 0),
     (0, 0, 170),
@@ -341,6 +286,62 @@ RETRO_8 = [
 ]
 
 
+sg.theme('Black')
+
+layout = [
+    [sg.Text("Image file")],
+    [
+        sg.Input(key='image_path', size=(60, 1)),
+        sg.FileBrowse(file_types=(("Image Files", "*.jpg"), ("Image Files", "*.jpeg"), ("Image Files", "*.png"), ("Image Files", "*.bmp"), ("Image Files", "*.jfif")))
+    ],
+    [sg.Text('', size=(40, 1), key='image_path_text')],
+    [
+        sg.Column([
+            [sg.Text("Compression")],
+            [sg.Combo(["None", "Low", "Medium", "High", "Extreme", "Retro 4", "Retro 8"], default_value="Medium", key='compression_combo', readonly=True)]
+        ]),
+        sg.Column([
+            [sg.Text("Brush type")],
+            [sg.Combo(["Pixel", "Brush"], default_value="Pixel", key='brush_combo', readonly=True)]
+        ]),
+        sg.Column([
+            [sg.Text("Background color")],
+            [sg.Input('255, 255, 255', key='bg_color_input', size=(12, 1))]
+        ])
+    ],
+    [sg.Text("Current mouse position: ", key='position_text', size=(40, 1))],
+    [
+        sg.Text("Starting position:\tX"),
+        sg.Input('30', key='start_x', size=(10, 1), enable_events=True),
+        sg.Text("Y"),
+        sg.Input('200', key='start_y', size=(10, 1), enable_events=True)
+    ],
+    [
+        sg.Text("Boundary limit:\tX"),
+        sg.Input('1800', key='end_x', size=(10, 1), enable_events=True),
+        sg.Text("Y"),
+        sg.Input('900', key='end_y', size=(10, 1), enable_events=True)
+    ],
+    [
+        sg.Checkbox("Pause every", key='pause_checkbox', enable_events=True),
+        sg.Input('2000', key='pause_pixels', size=(10, 1), enable_events=True, disabled=True, disabled_readonly_background_color='black'),
+        sg.Text("pixels for"),
+        sg.Input('3', key='pause_time', size=(5, 1), enable_events=True, disabled=True, disabled_readonly_background_color='black'),
+        sg.Text("seconds")
+    ],
+    [sg.Text("Progress update every"), sg.Input('1', key='progress_pixels', size=(10, 1), enable_events=True), sg.Text("pixels")],
+    [sg.Button("Draw", key='draw_button')],
+    [sg.Text('', size=(60, 1), key='elapsed_time_text')],
+    [sg.Text('', size=(60, 1), key='time_remaining_text')],
+    [sg.Text('', size=(60, 1), key='color_progress_text')],
+    [sg.ProgressBar(max_value=500, size=(45, 20), key='color_progress_bar')],
+    [sg.Text('', size=(60, 1), key='pixel_progress_text')],
+    [sg.ProgressBar(max_value=500, size=(45, 20), key='pixel_progress_bar')],
+    [sg.Text('', size=(60, 1), key='color_pixel_progress_text')],
+    [sg.ProgressBar(max_value=500, size=(45, 20), key='color_pixel_progress_bar')]
+]
+
+
 def process_image(image_path: str, compression: str, background_color: tuple[int, int, int], max_size: tuple[int, int]) -> dict:
     image = remove_alpha(Image.open(image_path), background_color)
     width, height = image.size
@@ -350,7 +351,7 @@ def process_image(image_path: str, compression: str, background_color: tuple[int
     for y in range(image.height):
         for x in range(image.width):
             rgb = image.getpixel((x, y))
-            rgb = compress_value(rgb, compression)
+            rgb = compress_value(rgb, compression, background_color)
             rgb = normalize_values(rgb)
             if rgb == background_color:
                 continue
@@ -387,7 +388,9 @@ def closest_color(rgb: tuple[int, int, int], colors: list) -> tuple[int, int, in
     return min(color_diffs)[1]
 
 
-def compress_value(rgb: tuple[int, int, int], compression: str) -> tuple[int, int, int]:
+def compress_value(rgb: tuple[int, int, int], compression: str, background_color: tuple[int, int, int]) -> tuple[int, int, int]:
+    if rgb == background_color:
+        return rgb
     compression_values = {
         'none': 1,
         'low': 2,
@@ -428,10 +431,7 @@ def paint(image_path: str, compression: str, speed: float, brush: str, backgroun
     pixel_dictionary = process_image(image_path, compression, background_color, (end_x, end_y))
     Popen(['mspaint.exe'])
     time.sleep(2)
-    pyautogui.keyDown('alt')
-    pyautogui.press(' ')
-    pyautogui.press('x')
-    pyautogui.keyUp('alt')
+    pyautogui.hotkey('win', 'up')
     pyautogui.moveTo(start_x, start_y)
     time.sleep(2)
     start_time = time.time()
