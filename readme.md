@@ -49,14 +49,14 @@ Set the starting X and Y coordinates of the painting. Make sure the coordinates 
 ### Pause
 Sometimes MS Paint needs a delay to process all the new pixels that were painted. If you are getting broken paintings try turning this option on.
 ### Progress Update
-Updating the progress bars every few pixels is another way of slowing down the painter. Set this value to `1` if you are getting broken paintings.
+Updating the progress bars every few pixels is another way of slowing down the painter. Decrease this value if you are getting broken paintings. Increasing it will make the painter faster.
 
 After you are satisfied with the settings and have read the [IMPORTANT](#important) section, click "Draw" to start drawing.
 ## Disclaimer
 I am not liable for any data loss, damage, or any other consequences resulting from use of this software. Use at your own risk.
 ## Credits
-Original idea and code created by Reddit user "saulmessedupman" (https://www.reddit.com/user/saulmessedupman/)  
-Reddit post: https://www.reddit.com/r/learnpython/comments/9weko5/what_useless_projects_are_you_working_on/  
-Original code Pastebin: https://pastebin.com/zSrYLWtf
+Original idea and code created by Reddit user [saulmessedupman](https://www.reddit.com/user/saulmessedupman/)  
+[Reddit post](https://www.reddit.com/r/learnpython/comments/9weko5/what_useless_projects_are_you_working_on/)  
+[Original code Pastebin](https://pastebin.com/zSrYLWtf)
 ## License
 [MIT License](https://choosealicense.com/licenses/mit/)
